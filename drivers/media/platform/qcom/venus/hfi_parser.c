@@ -162,34 +162,40 @@ static void fill_raw_fmts(struct hfi_plat_caps *cap, const void *fmts,
 }
 
 static int
-parse_raw_formats(struct venus_core *core, u32 codecs, u32 domain, void *data)
+parse_raw_formats(struct venus_core *core, u32 codecs, u32 domain, void *data, u32 rem_bytes)
 {
 	struct hfi_uncompressed_format_supported *fmt = data;
-	struct hfi_uncompressed_plane_info *pinfo = &fmt->plane_info;
-	struct hfi_uncompressed_plane_constraints *constr;
 	struct raw_formats rawfmts[MAX_FMT_ENTRIES] = {};
 	u32 entries = fmt->format_entries;
+	u32 size, num_planes;
 	unsigned int i = 0;
-	u32 num_planes = 0;
-	u32 size = 2 * sizeof(u32);
 
-	while (entries) {
+	size = sizeof(*fmt);
+
+	if (size > rem_bytes)
+		return -EOVERFLOW;
+
+	for (;entries; entries --) {
+		struct hfi_uncompressed_plane_info *pinfo = data + size;
+
+		if (size + sizeof(*pinfo) > rem_bytes)
+			return -EOVERFLOW;
+
 		num_planes = pinfo->num_planes;
+		size += struct_size(pinfo, plane_constraints, num_planes);
+
+		if (size > rem_bytes)
+			return -EOVERFLOW;
+
+		if (num_planes > MAX_PLANES)
+			return -EINVAL;
+
+		if (i >= MAX_FMT_ENTRIES)
+			continue;
 
 		rawfmts[i].fmt = pinfo->format;
 		rawfmts[i].buftype = fmt->buffer_type;
 		i++;
-
-		if (i >= MAX_FMT_ENTRIES)
-			return -EINVAL;
-
-		if (pinfo->num_planes > MAX_PLANES)
-			break;
-
-		size += sizeof(*constr) * num_planes + 2 * sizeof(u32);
-		pinfo = (void *)pinfo + sizeof(*constr) * num_planes +
-			2 * sizeof(u32);
-		entries--;
 	}
 
 	for_each_codec(core->caps, ARRAY_SIZE(core->caps), codecs, domain,
@@ -317,11 +323,13 @@ u32 hfi_parser(struct venus_core *core, struct venus_inst *inst, void *buf,
 	}
 
 	while (words < frame_size) {
-		payload = words + 1;
+		u32 property = words[0];
+		payload = ++words;
+		rem_bytes -= 4;
 
-		switch (*words) {
+		switch (property) {
 		case HFI_PROPERTY_PARAM_CODEC_SUPPORTED:
-			if (rem_bytes <= sizeof(struct hfi_codec_supported))
+			if (rem_bytes < sizeof(struct hfi_codec_supported))
 				return HFI_ERR_SYS_INSUFFICIENT_RESOURCES;
 
 			ret = parse_codecs(core, payload);
@@ -331,47 +339,45 @@ u32 hfi_parser(struct venus_core *core, struct venus_inst *inst, void *buf,
 			init_codecs(core);
 			break;
 		case HFI_PROPERTY_PARAM_MAX_SESSIONS_SUPPORTED:
-			if (rem_bytes <= sizeof(struct hfi_max_sessions_supported))
+			if (rem_bytes < sizeof(struct hfi_max_sessions_supported))
 				return HFI_ERR_SYS_INSUFFICIENT_RESOURCES;
 
 			ret = parse_max_sessions(core, payload);
 			break;
 		case HFI_PROPERTY_PARAM_CODEC_MASK_SUPPORTED:
-			if (rem_bytes <= sizeof(struct hfi_codec_mask_supported))
+			if (rem_bytes < sizeof(struct hfi_codec_mask_supported))
 				return HFI_ERR_SYS_INSUFFICIENT_RESOURCES;
 
 			ret = parse_codecs_mask(&codecs, &domain, payload);
 			break;
 		case HFI_PROPERTY_PARAM_UNCOMPRESSED_FORMAT_SUPPORTED:
-			if (rem_bytes <= sizeof(struct hfi_uncompressed_format_supported))
-				return HFI_ERR_SYS_INSUFFICIENT_RESOURCES;
-
-			ret = parse_raw_formats(core, codecs, domain, payload);
+			ret = parse_raw_formats(core, codecs, domain, payload, rem_bytes);
 			break;
 		case HFI_PROPERTY_PARAM_CAPABILITY_SUPPORTED:
-			if (rem_bytes <= sizeof(struct hfi_capabilities))
+			if (rem_bytes < sizeof(struct hfi_capabilities))
 				return HFI_ERR_SYS_INSUFFICIENT_RESOURCES;
 
 			ret = parse_caps(core, codecs, domain, payload);
 			break;
 		case HFI_PROPERTY_PARAM_PROFILE_LEVEL_SUPPORTED:
-			if (rem_bytes <= sizeof(struct hfi_profile_level_supported))
+			if (rem_bytes < sizeof(struct hfi_profile_level_supported))
 				return HFI_ERR_SYS_INSUFFICIENT_RESOURCES;
 
 			ret = parse_profile_level(core, codecs, domain, payload);
 			break;
 		case HFI_PROPERTY_PARAM_BUFFER_ALLOC_MODE_SUPPORTED:
-			if (rem_bytes <= sizeof(struct hfi_buffer_alloc_mode_supported))
+			if (rem_bytes < sizeof(struct hfi_buffer_alloc_mode_supported))
 				return HFI_ERR_SYS_INSUFFICIENT_RESOURCES;
 
 			ret = parse_alloc_mode(core, codecs, domain, payload);
 			break;
 		default:
-			ret = sizeof(u32);
+			dev_warn_once(core->dev, "Unsupported property: %x\n", property);
+			ret = 0;
 			break;
 		}
 
-		if (ret < 0)
+		if (ret < 0 || rem_bytes < ret)
 			return HFI_ERR_SYS_INSUFFICIENT_RESOURCES;
 
 		words += ret / sizeof(u32);
