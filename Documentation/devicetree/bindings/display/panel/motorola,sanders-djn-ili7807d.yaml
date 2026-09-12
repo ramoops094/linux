@@ -1,0 +1,72 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/display/panel/motorola,sanders-djn-ili7807d.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Motorola Moto G5S Plus DJN ILI7807D DSI Display Panel
+
+maintainers:
+  - tigelaa <tigelaa@proton.me>
+
+description:
+  1080x1920 video mode DSI panel with a DJN ILI7807D controller,
+  as used in the Motorola Moto G5S Plus (sanders).
+
+allOf:
+  - $ref: panel-common.yaml#
+
+properties:
+  compatible:
+    items:
+      - const: motorola,sanders-djn-ili7807d
+
+  reg:
+    maxItems: 1
+
+  vsn-supply:
+    description: Regulator for negative display supply.
+
+  vsp-supply:
+    description: Regulator for positive display supply.
+
+  backlight: true
+  reset-gpios: true
+  port: true
+
+required:
+  - compatible
+  - reg
+  - vsn-supply
+  - vsp-supply
+  - reset-gpios
+  - port
+
+additionalProperties: false
+
+examples:
+  - |
+    #include <dt-bindings/gpio/gpio.h>
+
+    dsi {
+        #address-cells = <1>;
+        #size-cells = <0>;
+
+        panel@0 {
+            compatible = "motorola,sanders-djn-ili7807d";
+            reg = <0>;
+
+            reset-gpios = <&tlmm 61 GPIO_ACTIVE_LOW>;
+
+            vsn-supply = <&ibb>;
+            vsp-supply = <&lab>;
+
+            backlight = <&pmi8950_wled>;
+
+            port {
+                panel_in: endpoint {
+                    remote-endpoint = <&dsi_out>;
+                };
+            };
+        };
+    };
