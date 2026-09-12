@@ -142,6 +142,10 @@
 	};
 };
 
+&atc_leds {
+	status = "okay";
+};
+
 &hsusb_phy {
 	vdd-supply = <&pm8953_l3>;
 	vdda-pll-supply = <&pm8953_l7>;
