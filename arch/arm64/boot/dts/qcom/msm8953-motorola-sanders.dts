@@ -115,6 +115,20 @@
 	};
 };
 
+&i2c_7 {
+	status = "okay";
+
+	light-sensor@23 {
+		compatible = "liteon,ltr559";
+		reg = <0x23>;
+
+		interrupt-parent = <&tlmm>;
+		interrupts = <86 IRQ_TYPE_EDGE_RISING>;
+
+		vdd-supply = <&pm8953_l10>;
+	};
+};
+
 &hsusb_phy {
 	vdd-supply = <&pm8953_l3>;
 	vdda-pll-supply = <&pm8953_l7>;
@@ -214,6 +228,15 @@
 
 &pm8953_resin {
 	linux,code = <KEY_VOLUMEDOWN>;
+	status = "okay";
+};
+
+&pmi8950_haptics {
+	qcom,actuator-type = <HAP_TYPE_LRA>;
+	qcom,auto-res-mode = <HAP_AUTO_RES_NONE>;
+	qcom,vmax-millivolt = <1950>;
+	qcom,wave-play-rate-us = <4255>;
+
 	status = "okay";
 };
 
