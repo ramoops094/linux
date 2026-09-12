@@ -1,0 +1,91 @@
+name: build sanders
+
+on:
+  push:
+    branches:
+      - sanders
+    paths:
+      - arch/arm64/boot/dts/qcom/msm8953-motorola-sanders.dts
+      - arch/arm64/boot/dts/qcom/Makefile
+      - Documentation/devicetree/bindings/arm/qcom.yaml
+      - Documentation/devicetree/bindings/display/panel/motorola,sanders-*.yaml
+      - drivers/gpu/drm/panel/panel-motorola-sanders-*.c
+      - drivers/gpu/drm/panel/Kconfig
+      - drivers/gpu/drm/panel/Makefile
+      - .github/workflows/build-sanders.yml
+  pull_request:
+    paths:
+      - arch/arm64/boot/dts/qcom/msm8953-motorola-sanders.dts
+      - arch/arm64/boot/dts/qcom/Makefile
+      - Documentation/devicetree/bindings/arm/qcom.yaml
+      - Documentation/devicetree/bindings/display/panel/motorola,sanders-*.yaml
+      - drivers/gpu/drm/panel/panel-motorola-sanders-*.c
+      - drivers/gpu/drm/panel/Kconfig
+      - drivers/gpu/drm/panel/Makefile
+      - .github/workflows/build-sanders.yml
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+
+      - name: install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y bc bison flex libelf-dev libssl-dev make clang llvm lld python3 gzip
+
+      - name: defconfig
+        run: make ARCH=arm64 LLVM=1 defconfig
+
+      - name: enable sanders panels
+        run: |
+          ./scripts/config --module CONFIG_DRM_PANEL_MOTOROLA_SANDERS_TIANMA_NT35596
+          ./scripts/config --module CONFIG_DRM_PANEL_MOTOROLA_SANDERS_DJN_ILI7807D
+          make ARCH=arm64 LLVM=1 olddefconfig
+
+      - name: build image and dtbs
+        run: make ARCH=arm64 LLVM=1 -j$(nproc) Image.gz dtbs
+
+      - name: build modules
+        run: make ARCH=arm64 LLVM=1 -j$(nproc) modules
+
+      - name: verify sanders panel modules
+        run: |
+          test -f drivers/gpu/drm/panel/panel-motorola-sanders-tianma-nt35596.ko
+          test -f drivers/gpu/drm/panel/panel-motorola-sanders-djn-ili7807d.ko
+          ls -lh drivers/gpu/drm/panel/panel-motorola-sanders-*.ko
+
+      - name: verify sanders dtb
+        run: |
+          test -f arch/arm64/boot/dts/qcom/msm8953-motorola-sanders.dtb
+          ls -lh arch/arm64/boot/Image.gz arch/arm64/boot/dts/qcom/msm8953-motorola-sanders.dtb
+
+      - name: upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: sanders-kernel
+          path: |
+            arch/arm64/boot/Image.gz
+            arch/arm64/boot/dts/qcom/msm8953-motorola-sanders.dtb
+
+  dtbs-check:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+
+      - name: install dependencies
+        run: |
+          sudo apt-get update -yqq
+          sudo apt-get install -yqq bc bison flex libelf-dev libssl-dev \
+            make clang llvm lld python3 python3-pip
+          pip install --break-system-packages dtschema
+
+      - name: defconfig
+        run: make ARCH=arm64 LLVM=1 defconfig
+
+      - name: dtbs check
+        run: make ARCH=arm64 LLVM=1 -j$(nproc) dtbs_check
