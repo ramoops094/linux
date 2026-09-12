@@ -97,6 +97,24 @@
 	};
 };
 
+&i2c_5 {
+	status = "okay";
+
+	nfc@28 {
+		compatible = "nxp,pn544-i2c";
+		reg = <0x28>;
+
+		interrupt-parent = <&tlmm>;
+		interrupts = <17 IRQ_TYPE_LEVEL_HIGH>;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&nfc_irq_default &nfc_pwr_default &nfc_firm_default>;
+
+		enable-gpios = <&tlmm 16 GPIO_ACTIVE_HIGH>;
+		firmware-gpios = <&tlmm 62 GPIO_ACTIVE_HIGH>;
+	};
+};
+
 &hsusb_phy {
 	vdd-supply = <&pm8953_l3>;
 	vdda-pll-supply = <&pm8953_l7>;
@@ -370,6 +388,26 @@
 };
 
 &tlmm {
+	nfc_irq_default: nfc-irq-state {
+		pins = "gpio17";
+		bias-pull-down;
+		drive-strength = <2>;
+	};
+
+	nfc_pwr_default: nfc-pwr-state {
+		pins = "gpio16";
+		bias-pull-down;
+		output-low;
+		drive-strength = <2>;
+	};
+
+	nfc_firm_default: nfc-firm-state {
+		pins = "gpio62";
+		bias-pull-down;
+		output-low;
+		drive-strength = <2>;
+	};
+
 	panel_default: panel-default-state {
 		pins = "gpio61";
 		function = "gpio";
