@@ -514,6 +514,26 @@ config DRM_PANEL_MOTOROLA_MOT
 	  unknown. The panel has a 540x960 resolution and uses 24 bit RGB per
 	  pixel.
 
+config DRM_PANEL_MOTOROLA_SANDERS_DJN_ILI7807D
+	tristate "Motorola Sanders DJN ILI7807D 1080x1920 DSI video mode panel"
+	depends on OF
+	depends on DRM_MIPI_DSI
+	depends on BACKLIGHT_CLASS_DEVICE
+	help
+	  Say Y here if you want to enable support for the DJN ILI7807D
+	  1080x1920 video mode panel as e.g. used in the Motorola Moto
+	  G5S Plus (sanders).
+
+config DRM_PANEL_MOTOROLA_SANDERS_TIANMA_NT35596
+	tristate "Motorola Sanders Tianma NT35596 1080x1920 DSI video mode panel"
+	depends on OF
+	depends on DRM_MIPI_DSI
+	depends on BACKLIGHT_CLASS_DEVICE
+	help
+	  Say Y here if you want to enable support for the Tianma NT35596
+	  1080x1920 video mode panel as e.g. used in the Motorola Moto
+	  G5S Plus (sanders).
+
 config DRM_PANEL_NEC_NL8048HL11
 	tristate "NEC NL8048HL11 RGB panel"
 	depends on GPIOLIB && OF && SPI
