@@ -293,6 +293,7 @@ properties:
           - enum:
               - flipkart,rimob
               - motorola,potter
+              - motorola,sanders
               - xiaomi,daisy
               - xiaomi,mido
               - xiaomi,tissot
