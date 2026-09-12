@@ -118,6 +118,19 @@
 &i2c_7 {
 	status = "okay";
 
+	speaker-amp@40 {
+		compatible = "cirrus,cs35l35";
+		reg = <0x40>;
+
+		interrupt-parent = <&tlmm>;
+		interrupts = <132 IRQ_TYPE_LEVEL_LOW>;
+
+		reset-gpios = <&tlmm 137 GPIO_ACTIVE_LOW>;
+
+		VA-supply = <&vph_pwr>;
+		VP-supply = <&vph_pwr>;
+	};
+
 	light-sensor@23 {
 		compatible = "liteon,ltr559";
 		reg = <0x23>;
@@ -408,6 +421,30 @@
 
 &usb3 {
 	status = "okay";
+};
+
+&sound_card {
+	status = "okay";
+
+	pinctrl-names = "default", "sleep";
+	pinctrl-0 = <&cdc_pdm_lines_default &cdc_pdm_lines_2_default &cdc_pdm_comp_lines_default>;
+	pinctrl-1 = <&cdc_pdm_lines_sleep &cdc_pdm_lines_2_sleep &cdc_pdm_comp_lines_sleep>;
+
+	model = "motorola-sanders";
+};
+
+&wcd_codec {
+	status = "okay";
+
+	qcom,micbias1-ext-cap;
+	qcom,micbias2-ext-cap;
+	qcom,hphl-jack-type-normally-open;
+	qcom,mbhc-vthreshold-low = <75 150 237 450 500>;
+	qcom,mbhc-vthreshold-high = <75 150 237 450 500>;
+
+	vdd-cdc-io-supply = <&pm8953_l5>;
+	vdd-cdc-tx-rx-cx-supply = <&pm8953_s4>;
+	vdd-micbias-supply = <&pm8953_l13>;
 };
 
 &tlmm {
