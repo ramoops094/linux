@@ -36,11 +36,14 @@ static inline struct djn_ili7807d *to_djn_ili7807d(struct drm_panel *panel)
 
 static void djn_ili7807d_reset(struct djn_ili7807d *ctx)
 {
-	gpiod_set_value_cansleep(ctx->reset_gpio, 1);
-	usleep_range(5000, 6000);
+	/* reset-gpios is GPIO_ACTIVE_LOW, so these are logical levels:
+	 * 0 = deasserted (physical high), 1 = asserted (physical low).
+	 * The sequence must end deasserted or the panel stays in reset. */
 	gpiod_set_value_cansleep(ctx->reset_gpio, 0);
 	usleep_range(5000, 6000);
 	gpiod_set_value_cansleep(ctx->reset_gpio, 1);
+	usleep_range(5000, 6000);
+	gpiod_set_value_cansleep(ctx->reset_gpio, 0);
 	usleep_range(40000, 41000);
 }
 
