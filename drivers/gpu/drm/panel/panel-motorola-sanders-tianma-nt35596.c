@@ -36,8 +36,9 @@ static inline struct tianma_nt35596 *to_tianma_nt35596(struct drm_panel *panel)
 
 static void tianma_nt35596_reset(struct tianma_nt35596 *ctx)
 {
-	gpiod_set_value_cansleep(ctx->reset_gpio, 1);
-	usleep_range(5000, 6000);
+	/* reset-gpios is GPIO_ACTIVE_LOW, so these are logical levels:
+	 * 0 = deasserted (physical high), 1 = asserted (physical low).
+	 * The sequence must end deasserted or the panel stays in reset. */
 	gpiod_set_value_cansleep(ctx->reset_gpio, 0);
 	usleep_range(5000, 6000);
 	gpiod_set_value_cansleep(ctx->reset_gpio, 1);
@@ -45,6 +46,8 @@ static void tianma_nt35596_reset(struct tianma_nt35596 *ctx)
 	gpiod_set_value_cansleep(ctx->reset_gpio, 0);
 	usleep_range(5000, 6000);
 	gpiod_set_value_cansleep(ctx->reset_gpio, 1);
+	usleep_range(5000, 6000);
+	gpiod_set_value_cansleep(ctx->reset_gpio, 0);
 	usleep_range(20000, 21000);
 }
 
