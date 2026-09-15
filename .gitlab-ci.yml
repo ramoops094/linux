@@ -1,0 +1,35 @@
+image: debian:trixie
+
+workflow:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "web"'
+    - if: '$CI_PIPELINE_SOURCE == "api"'
+    - when: never
+
+stages:
+  - build
+
+build-kernel:
+  stage: build
+  when: manual
+  variables:
+    KBUILD_BUILD_USER: gitlab
+    KBUILD_BUILD_HOST: gitlab-runner
+  script:
+    - apt-get update -qq
+    - apt-get install -y -qq bc bison clang flex gzip libelf-dev libssl-dev llvm lld make python3
+    - make ARCH=arm64 LLVM=1 defconfig
+    - ./scripts/config --module CONFIG_DRM_PANEL_MOTOROLA_SANDERS_TIANMA_NT35596
+    - ./scripts/config --module CONFIG_DRM_PANEL_MOTOROLA_SANDERS_DJN_ILI7807D
+    - make ARCH=arm64 LLVM=1 olddefconfig
+    - make ARCH=arm64 LLVM=1 -j"$(nproc)" Image.gz dtbs modules
+    - test -f arch/arm64/boot/dts/qcom/msm8953-motorola-sanders.dtb
+    - test -f drivers/gpu/drm/panel/panel-motorola-sanders-tianma-nt35596.ko
+    - test -f drivers/gpu/drm/panel/panel-motorola-sanders-djn-ili7807d.ko
+  artifacts:
+    name: sanders-kernel
+    expire_in: 1 week
+    paths:
+      - arch/arm64/boot/Image.gz
+      - arch/arm64/boot/dts/qcom/msm8953-motorola-sanders.dtb
+      - drivers/gpu/drm/panel/panel-motorola-sanders-*.ko
