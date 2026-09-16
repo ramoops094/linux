@@ -370,8 +370,8 @@
 		};
 
 		pm8953_l10: l10 {
-			regulator-min-microvolt = <1800000>;
-			regulator-max-microvolt = <1800000>;
+			regulator-min-microvolt = <2850000>;
+			regulator-max-microvolt = <2850000>;
 			regulator-always-on;
 		};
 
