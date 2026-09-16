@@ -19,8 +19,18 @@ build-kernel:
     - apt-get update -qq
     - apt-get install -y -qq bc bison clang flex gzip libelf-dev libssl-dev llvm lld make python3
     - make ARCH=arm64 LLVM=1 defconfig
+    - scripts/kconfig/merge_config.sh -m .config arch/arm64/configs/msm8953.config arch/arm64/configs/motorola-potter.config
     - ./scripts/config --module CONFIG_DRM_PANEL_MOTOROLA_SANDERS_TIANMA_NT35596
     - ./scripts/config --module CONFIG_DRM_PANEL_MOTOROLA_SANDERS_DJN_ILI7807D
+    - ./scripts/config --module CONFIG_DRM_MSM
+    - ./scripts/config --module CONFIG_TOUCHSCREEN_EDT_FT5X06
+    - ./scripts/config --module CONFIG_RMI4_CORE
+    - ./scripts/config --module CONFIG_RMI4_I2C
+    - ./scripts/config --enable CONFIG_RMI4_F11
+    - ./scripts/config --enable CONFIG_RMI4_F12
+    - ./scripts/config --module CONFIG_USB_LIBCOMPOSITE
+    - ./scripts/config --module CONFIG_USB_F_RNDIS
+    - ./scripts/config --enable CONFIG_USB_CONFIGFS_RNDIS
     - make ARCH=arm64 LLVM=1 olddefconfig
     - make ARCH=arm64 LLVM=1 -j"$(nproc)" Image.gz dtbs modules
     - test -f arch/arm64/boot/dts/qcom/msm8953-motorola-sanders.dtb
