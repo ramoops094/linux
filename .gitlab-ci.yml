@@ -34,6 +34,7 @@ build-kernel:
     - ./scripts/config --enable CONFIG_FB_SIMPLE
     - ./scripts/config --enable CONFIG_FRAMEBUFFER_CONSOLE
     - ./scripts/config --enable CONFIG_VT
+    - ./scripts/config --enable CONFIG_TRIM_UNUSED_KSYMS
     - make ARCH=arm64 LLVM=1 olddefconfig
     - make ARCH=arm64 LLVM=1 -j"$(nproc)" Image.gz dtbs modules
     - test -f arch/arm64/boot/dts/qcom/msm8953-motorola-sanders.dtb
