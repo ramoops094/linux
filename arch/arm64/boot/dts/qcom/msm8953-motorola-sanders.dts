@@ -291,6 +291,7 @@
 	qcom,num-strings = <3>;
 	qcom,external-pfet;
 	qcom,cabc;
+	default-brightness = <2048>;
 
 	status = "okay";
 };
