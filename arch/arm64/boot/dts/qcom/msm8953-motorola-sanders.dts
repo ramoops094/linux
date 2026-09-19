@@ -527,3 +527,11 @@
 	vddpa-supply = <&pm8953_l9>;
 	vdddig-supply = <&pm8953_l5>;
 };
+
+&lab {
+	regulator-always-on;
+};
+
+&ibb {
+	regulator-always-on;
+};
