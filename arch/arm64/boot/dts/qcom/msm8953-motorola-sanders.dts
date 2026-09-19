@@ -218,7 +218,7 @@
 	vddio-supply = <&pm8953_l6>;
 
 	panel: panel@0 {
-		compatible = "motorola,sanders-panel";
+		compatible = "motorola,sanders-djn-ili7807d";
 		reg = <0>;
 
 		backlight = <&pmi8950_wled>;
