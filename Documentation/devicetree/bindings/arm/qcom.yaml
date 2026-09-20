@@ -861,6 +861,7 @@ properties:
       - items:
           - enum:
               - fairphone,fp3
+              - motorola,channel
               - motorola,ocean
           - const: qcom,sdm632
 
