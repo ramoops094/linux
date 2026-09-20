@@ -178,6 +178,9 @@
 	touchscreen@38 {
 		compatible = "focaltech,ft5426";
 		reg = <0x38>;
+		/* Absent on the DJN test unit (0-0038 probe failed);
+		 * shares reset/irq with synaptics, keep disabled there. */
+		status = "disabled";
 
 		interrupt-parent = <&tlmm>;
 		interrupts = <65 IRQ_TYPE_EDGE_FALLING>;
