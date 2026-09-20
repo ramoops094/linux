@@ -103,9 +103,107 @@
 	status = "okay";
 };
 
+&i2c_3 {
+	status = "okay";
+
+	/*
+	 * DJN units ship the Novatek NT36525/NT36525B at 0x62; DSBJ units
+	 * ship the Ilitek ILI9881 at 0x41 (see stock DTBO + vendor firmware).
+	 * No mainline driver supports either IC yet, so both stay disabled
+	 * until the drivers are ported. Do NOT enable both at once: they
+	 * share reset GPIO64 and IRQ GPIO65.
+	 */
+	novatek@62 {
+		compatible = "novatek,NVT-ts";
+		reg = <0x62>;
+		status = "disabled";
+		novatek,reset-gpio = <&tlmm 64 GPIO_ACTIVE_HIGH>;
+		novatek,irq-gpio = <&tlmm 65 IRQ_TYPE_EDGE_FALLING>;
+	};
+
+	ilitek@41 {
+		compatible = "ilitek,tchip";
+		reg = <0x41>;
+		status = "disabled";
+		ilitek,reset-gpio = <&tlmm 64 GPIO_ACTIVE_HIGH>;
+		ilitek,irq-gpio = <&tlmm 65 IRQ_TYPE_EDGE_FALLING>;
+		ilitek,tp_ic_type = "ILI9881";
+	};
+
+	/*
+	 * Himax spare/alternative at 0x48. Has a mainline driver; enabled
+	 * so himax-based units get touch. IRQ polarity follows the FP3
+	 * precedent (stock DTBO uses flags 0x2008 - verify on hardware).
+	 */
+	touchscreen@48 {
+		compatible = "himax,hx83112b";
+		reg = <0x48>;
+		interrupt-parent = <&tlmm>;
+		interrupts = <65 IRQ_TYPE_LEVEL_LOW>;
+		touchscreen-size-x = <720>;
+		touchscreen-size-y = <1512>;
+		reset-gpios = <&tlmm 64 GPIO_ACTIVE_LOW>;
+	};
+};
+
+&mdss {
+	status = "okay";
+};
+
+&mdss_dsi0 {
+	vdda-supply = <&pm8953_s3>;
+	vddio-supply = <&pm8953_l6>;
+	status = "okay";
+
+	/*
+	 * Generic panel compatible: lk2nd rewrites it to the concrete
+	 * motorola,channel-{568,569}-djn / motorola,channel-{569,570}-dsbj
+	 * compatible based on the bootloader panel name. vsp/vsn come from
+	 * the PMI632 LCDB which has no mainline driver yet; the panel
+	 * drivers fall back to dummy regulators and rely on the bootloader
+	 * having set LCDB up (same as river/ocean today). iovcc is L6.
+	 */
+	panel: panel@0 {
+		compatible = "motorola,channel-panel";
+		reg = <0>;
+
+		reset-gpios = <&tlmm 61 GPIO_ACTIVE_LOW>;
+
+		iovcc-supply = <&pm8953_l6>;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&panel_default &bklt_en_default>;
+
+		port {
+			panel_in: endpoint {
+				remote-endpoint = <&mdss_dsi0_out>;
+			};
+		};
+	};
+};
+
+&mdss_dsi0_out {
+	data-lanes = <0 1 2 3>;
+	remote-endpoint = <&panel_in>;
+};
+
+&mdss_dsi0_phy {
+	vcca-supply = <&pm8953_l3>;
+	status = "okay";
+};
+
 &pm8953_resin {
 	linux,code = <KEY_VOLUMEDOWN>;
 	status = "okay";
+};
+
+&pm8953_gpios {
+	bklt_en_default: bklt-en-default {
+		pins = "gpio4";
+		function = "normal";
+		power-source = <0>;
+		output-high;
+	};
 };
 
 &pmi632_typec {
@@ -270,6 +368,14 @@
 	 * Channel ownership is unverified; nothing enabled here uses them.
 	 */
 	gpio-reserved-ranges = <0 4>, <96 4>;
+
+	panel_default: panel-default-state {
+		pins = "gpio61";
+		function = "gpio";
+		drive-strength = <8>;
+		bias-disable;
+		output-high;
+	};
 };
 
 &uart_0 {
@@ -282,4 +388,26 @@
 
 &usb_dwc3_hs {
 	remote-endpoint = <&pmi632_hs_in>;
+};
+
+&wcnss {
+	vddpx-supply = <&pm8953_l5>;
+	status = "okay";
+};
+
+&wcnss_ctrl {
+	firmware-name = "qcom/msm8953/motorola/channel/WCNSS_qcom_wlan_nv.bin";
+};
+
+&wcnss_iris {
+	/*
+	 * Stock shows a Pronto-v3 WCNSS; the G7 family pairs SDM632 with
+	 * the WCN3660B (b/g/n, same as river). Confirm the FW version
+	 * string on hardware.
+	 */
+	compatible = "qcom,wcn3660b";
+	vddxo-supply = <&pm8953_l7>;
+	vddrfa-supply = <&pm8953_l19>;
+	vddpa-supply = <&pm8953_l9>;
+	vdddig-supply = <&pm8953_l5>;
 };
