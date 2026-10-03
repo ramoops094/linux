@@ -131,7 +131,7 @@
 	novatek@62 {
 		compatible = "novatek,NVT-ts";
 		reg = <0x62>;
-		status = "disabled";
+		status = "okay";
 		novatek,reset-gpio = <&tlmm 64 GPIO_ACTIVE_HIGH>;
 		novatek,irq-gpio = <&tlmm 65 IRQ_TYPE_EDGE_FALLING>;
 	};
@@ -139,7 +139,7 @@
 	focaltech@38 {
 		compatible = "focaltech,mmi";
 		reg = <0x38>;
-		status = "disabled";
+		status = "okay";
 		interrupt-parent = <&tlmm>;
 		interrupts = <65 IRQ_TYPE_EDGE_FALLING>;
 		focaltech,reset-gpio = <&tlmm 64 GPIO_ACTIVE_LOW>;
@@ -303,6 +303,27 @@
 
 &tlmm {
 	gpio-reserved-ranges = <0 4>, <96 4>;
+};
+
+&pmi8950_fg {
+	monitored-battery = <&battery>;
+	power-supplies = <&pmi8950_smbcharger>;
+	status = "okay";
+};
+
+&pmi8950_smbcharger {
+	monitored-battery = <&battery>;
+	status = "okay";
+};
+
+&pmi8950_wled {
+	qcom,current-limit-microamp = <25000>;
+	qcom,num-strings = <3>;
+	qcom,external-pfet;
+	qcom,cabc;
+	default-brightness = <2048>;
+
+	status = "okay";
 };
 
 &uart_0 {
