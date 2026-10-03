@@ -179,7 +179,7 @@
 	vddio-supply = <&pm8953_l6>;
 
 	panel: panel@0 {
-		compatible = "motorola,deen-nova-hd";
+		compatible = "motorola,deen-nova-586";
 		reg = <0>;
 
 		pinctrl-names = "default";
