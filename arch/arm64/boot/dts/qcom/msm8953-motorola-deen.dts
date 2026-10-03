@@ -128,6 +128,9 @@
 &i2c_3 {
 	status = "okay";
 
+	/delete-property/ dmas;
+	/delete-property/ dma-names;
+
 	novatek@62 {
 		compatible = "novatek,NVT-ts";
 		reg = <0x62>;
@@ -144,6 +147,19 @@
 		interrupts = <65 IRQ_TYPE_EDGE_FALLING>;
 		focaltech,reset-gpio = <&tlmm 64 GPIO_ACTIVE_LOW>;
 		focaltech,irq-gpio = <&tlmm 65 IRQ_TYPE_EDGE_FALLING>;
+	};
+
+	touchscreen@1 {
+		reg = <0x01>;
+		compatible = "novatek,nt36672a-ts";
+
+		interrupts-extended = <&tlmm 65 IRQ_TYPE_EDGE_FALLING>;
+
+		pinctrl-names = "default", "sleep";
+		pinctrl-0 = <&ts_int_default>;
+		pinctrl-1 = <&ts_int_sleep>;
+
+		reset-gpios = <&tlmm 64 GPIO_ACTIVE_LOW>;
 	};
 };
 
@@ -303,6 +319,20 @@
 
 &tlmm {
 	gpio-reserved-ranges = <0 4>, <96 4>;
+
+	ts_int_default: ts-int-default-state {
+		pins = "gpio65";
+		function = "gpio";
+		drive-strength = <8>;
+		bias-pull-up;
+	};
+
+	ts_int_sleep: ts-int-sleep-state {
+		pins = "gpio65";
+		function = "gpio";
+		drive-strength = <2>;
+		bias-pull-down;
+	};
 };
 
 &pmi8950_fg {
@@ -337,6 +367,12 @@
 &wcnss {
 	vddpx-supply = <&pm8953_l5>;
 	status = "okay";
+};
+
+&wcnss_wifi {
+	status = "okay";
+	qcom,smem-states = <&apps_smsm 10>, <&apps_smsm 9>;
+	qcom,smem-state-names = "tx-enable", "tx-rings-empty";
 };
 
 &wcnss_ctrl {
