@@ -401,11 +401,11 @@
 
 &wcnss_iris {
 	/*
-	 * Stock shows a Pronto-v3 WCNSS; the G7 family pairs SDM632 with
-	 * the WCN3660B (b/g/n, same as river). Confirm the FW version
-	 * string on hardware.
+	 * Channel requires the 19.2 MHz IRIS XO configuration. The 48 MHz
+	 * configuration selected by wcn3660b causes WCNSS startup to time
+	 * out before the Wi-Fi interface can be registered.
 	 */
-	compatible = "qcom,wcn3660b";
+	compatible = "qcom,wcn3620";
 	vddxo-supply = <&pm8953_l7>;
 	vddrfa-supply = <&pm8953_l19>;
 	vddpa-supply = <&pm8953_l9>;
