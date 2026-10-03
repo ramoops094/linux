@@ -224,6 +224,7 @@ properties:
       - items:
           - enum:
               - flipkart,rimob
+              - motorola,deen
               - motorola,potter
               - motorola,sanders
               - xiaomi,daisy
@@ -862,6 +863,7 @@ properties:
       - items:
           - enum:
               - fairphone,fp3
+              - motorola,channel
               - motorola,ocean
           - const: qcom,sdm632
 

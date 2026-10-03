@@ -502,6 +502,72 @@ config DRM_PANEL_MANTIX_MLAF057WE51
 	  has a resolution of 720x1440 pixels, a built in backlight and touch
 	  controller.
 
+config DRM_PANEL_MOTOROLA_CHANNEL_568_DJN
+	tristate "DJN 568 720x1512 DSI video mode panel (Motorola Channel)"
+	depends on OF
+	depends on DRM_MIPI_DSI
+	depends on BACKLIGHT_CLASS_DEVICE
+	help
+	  Say Y here if you want to enable support for the DJN 568 LCD
+	  panel module found in the Motorola Moto G7 Play (channel).
+	  The panel has a 720x1512 resolution and uses 24 bit RGB per
+	  pixel.
+
+config DRM_PANEL_MOTOROLA_CHANNEL_569_DJN
+	tristate "DJN 569 720x1512 DSI video mode panel (Motorola Channel)"
+	depends on OF
+	depends on DRM_MIPI_DSI
+	depends on BACKLIGHT_CLASS_DEVICE
+	help
+	  Say Y here if you want to enable support for the DJN 569 LCD
+	  panel module found in the Motorola Moto G7 Play (channel).
+	  The panel has a 720x1512 resolution and uses 24 bit RGB per
+	  pixel.
+
+config DRM_PANEL_MOTOROLA_CHANNEL_569_DSBJ
+	tristate "DSBJ 569 720x1512 DSI video mode panel (Motorola Channel)"
+	depends on OF
+	depends on DRM_MIPI_DSI
+	depends on BACKLIGHT_CLASS_DEVICE
+	help
+	  Say Y here if you want to enable support for the DSBJ 569 LCD
+	  panel module found in the Motorola Moto G7 Play (channel).
+	  The panel has a 720x1512 resolution and uses 24 bit RGB per
+	  pixel.
+
+config DRM_PANEL_MOTOROLA_CHANNEL_570_DSBJ
+	tristate "DSBJ 570 720x1512 DSI video mode panel (Motorola Channel)"
+	depends on OF
+	depends on DRM_MIPI_DSI
+	depends on BACKLIGHT_CLASS_DEVICE
+	help
+	  Say Y here if you want to enable support for the DSBJ 570 LCD
+	  panel module found in the Motorola Moto G7 Play (channel).
+	  The panel has a 720x1512 resolution and uses 24 bit RGB per
+	  pixel.
+
+config DRM_PANEL_MOTOROLA_DEEN_NOVA_586
+	tristate "Nova 586 720x1520 DSI video mode panel (Motorola Deen)"
+	depends on OF
+	depends on DRM_MIPI_DSI
+	depends on BACKLIGHT_CLASS_DEVICE
+	help
+	  Say Y here if you want to enable support for the Nova 586 LCD
+	  panel module found in the Motorola One (deen).
+	  The panel has a 720x1520 resolution and uses 24 bit RGB per
+	  pixel.
+
+config DRM_PANEL_MOTOROLA_DEEN_TIANMA_586
+	tristate "Tianma 586 720x1520 DSI video mode panel (Motorola Deen)"
+	depends on OF
+	depends on DRM_MIPI_DSI
+	depends on BACKLIGHT_CLASS_DEVICE
+	help
+	  Say Y here if you want to enable support for the Tianma 586 LCD
+	  panel module found in the Motorola One (deen).
+	  The panel has a 720x1520 resolution and uses 24 bit RGB per
+	  pixel.
+
 config DRM_PANEL_MOTOROLA_MOT
 	tristate "Atrix 4G and Droid X2 540x960 DSI video mode panel"
 	depends on OF
