@@ -158,6 +158,12 @@
 
 &i2c_3 {
 	status = "okay";
+	clock-frequency = <400000>;
+
+	/* Force PIO (no DMA): mainline controller may mishandle
+	 * specific FT5436 transactions with DMA enabled. */
+	/delete-property/ dmas;
+	/delete-property/ dma-names;
 
 	touchscreen@20 {
 		compatible = "syna,rmi4-i2c";
