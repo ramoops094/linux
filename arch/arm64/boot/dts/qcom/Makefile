@@ -125,6 +125,7 @@ dtb-$(CONFIG_ARCH_QCOM)	+= msm8953-asus-ze552kl.dtb
 dtb-$(CONFIG_ARCH_QCOM)	+= msm8953-flipkart-rimob.dtb
 dtb-$(CONFIG_ARCH_QCOM)	+= msm8953-huawei-milan.dtb
 dtb-$(CONFIG_ARCH_QCOM)	+= msm8953-lenovo-kuntao.dtb
+dtb-$(CONFIG_ARCH_QCOM)	+= msm8953-motorola-deen.dtb
 dtb-$(CONFIG_ARCH_QCOM)	+= msm8953-motorola-potter.dtb
 dtb-$(CONFIG_ARCH_QCOM)	+= msm8953-motorola-sanders.dtb
 dtb-$(CONFIG_ARCH_QCOM)	+= msm8953-xiaomi-daisy.dtb
