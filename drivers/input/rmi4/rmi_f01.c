@@ -560,10 +560,9 @@ static int rmi_f01_probe(struct rmi_function *fn)
 	}
 
 	if (RMI_F01_STATUS_UNCONFIGURED(device_status)) {
-		dev_err(&fn->dev,
-			"Device was reset during configuration process, status: %#02x!\n",
+		dev_warn(&fn->dev,
+			"Device status unconfigured (status: %#02x), continuing anyway\n",
 			RMI_F01_STATUS_CODE(device_status));
-		return -EINVAL;
 	}
 
 	dev_set_drvdata(&fn->dev, f01);
