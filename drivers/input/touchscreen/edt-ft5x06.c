@@ -1254,8 +1254,15 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client)
 
 	error = edt_ft5x06_ts_identify(client, tsdata);
 	if (error) {
-		dev_err(&client->dev, "touchscreen probe failed\n");
-		return error;
+		/* HACK sanders: Moto G5s Plus Focaltech FT5436 nao expoe
+		 * o nome no registrador 0xBB que o driver mainline le. Em
+		 * vez de falhar o probe, assume defaults de Generic M09. */
+		dev_warn(&client->dev,
+			"identify failed (%d), assuming generic ft5x06\n",
+			error);
+		tsdata->version = EDT_M09;
+		strscpy(tsdata->name, "ft5436-sanders", EDT_NAME_LEN);
+		strscpy(tsdata->fw_version, "unknown", EDT_NAME_LEN);
 	}
 
 	/*
