@@ -1,0 +1,54 @@
+name: Build msm8953 kernel
+
+on:
+  push:
+    branches: [msm8953/latest]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: msm8953/latest
+          fetch-depth: 1
+
+      - name: Install toolchain
+        run: |
+          sudo apt-get update -yqq
+          sudo apt-get install -yqq bc bison flex gcc-aarch64-linux-gnu git gzip libssl-dev make python3
+
+      - name: Build Image.gz and DTBs
+        run: |
+          set -euxo pipefail
+          make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- defconfig
+          for frag in arch/arm64/configs/motorola-channel.config arch/arm64/configs/motorola-deen.config; do
+            test -s "$frag"
+          done
+          scripts/kconfig/merge_config.sh -m .config \
+            arch/arm64/configs/motorola-channel.config \
+            arch/arm64/configs/motorola-deen.config
+          make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- olddefconfig
+          make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- -j"$(nproc)" Image.gz dtbs modules
+          for dtb in msm8953-motorola-sanders msm8953-motorola-deen sdm632-motorola-channel; do
+            test -s "arch/arm64/boot/dts/qcom/$dtb.dtb"
+          done
+          KREL="$(make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- -s kernelrelease)"
+          echo "built $KREL"
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: msm8953-kernel
+          path: |
+            arch/arm64/boot/Image.gz
+            arch/arm64/boot/dts/qcom/msm8953-motorola-sanders.dtb
+            arch/arm64/boot/dts/qcom/msm8953-motorola-deen.dtb
+            arch/arm64/boot/dts/qcom/sdm632-motorola-channel.dtb
+          if-no-files-found: error
