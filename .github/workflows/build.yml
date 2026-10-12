@@ -2,7 +2,7 @@ name: Build msm8953 kernel
 
 on:
   push:
-    branches: [msm8953/latest]
+    branches: [msm8953/latest, 7.3-rc7/main]
   workflow_dispatch:
 
 permissions:
@@ -16,7 +16,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          ref: msm8953/latest
+          ref: ${{ github.ref_name }}
           fetch-depth: 1
 
       - name: Install toolchain
