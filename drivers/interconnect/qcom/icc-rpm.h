@@ -67,7 +67,8 @@ struct qcom_icc_provider {
 	bool ignore_enxio;
 	bool nodes_changed;
 	int num_intf_clks;
-	struct clk_bulk_data intf_clks[] __counted_by(num_intf_clks);};
+	struct clk_bulk_data intf_clks[] __counted_by(num_intf_clks);
+};
 
 /**
  * struct qcom_icc_qos - Qualcomm specific interconnect QoS parameters
